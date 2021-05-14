@@ -7,6 +7,8 @@ import nltk
 from nltk.stem.wordnet import WordNetLemmatizer
 from nltk.stem import PorterStemmer
 from collections import Counter
+import matplotlib.pyplot as plt
+import numpy as np
 
 # define the variables of the program
 lemma = WordNetLemmatizer()
@@ -307,4 +309,91 @@ def sum_tweets_per_day(list_stocks, list_names_stocks):
     return list_amount_tweets
 
 
-sum_tweets_per_day(list_stocks, list_names_stocks)
+list_tweets_per_day = sum_tweets_per_day(list_stocks, list_names_stocks)
+
+
+def autolabel(ax, rects):
+    """Attach a text label above each bar in *rects*, displaying its height."""
+    for rect in rects:
+        height = round(rect.get_height(),2)
+        ax.annotate('{}'.format(height),
+                    xy=(rect.get_x() + rect.get_width() / 2, height),
+                    xytext=(0, 3),  # 3 points vertical offset
+                    textcoords="offset points",
+                    ha='center', va='bottom')
+
+
+def cut_label_trends(data):
+  labels = []
+  for i in data:
+    temp = i.strftime('%Y-%m-%d')
+    # x = temp.split('-')
+    # new = str('21')+"-"+str(x[0])+"-"+str(x[1])
+    labels.append(temp)
+  return labels
+
+
+def show_plots_of_compare(results, title):
+    results = [[x[i] for x in results] for i in range(7)]
+    # [facebook, amazon, apple, google, tesla, netflix]
+    days, tweets_facebook, tweets_amazon, tweets_apple,\
+    tweets_google, tweets_tesla, tweets_netflix = results
+    tweets_facebook_g = np.array(tweets_facebook) / np.max(tweets_facebook)
+    tweets_amazon_g = np.array(tweets_amazon) / np.max(tweets_amazon)
+    tweets_apple_g = np.array(tweets_apple) / np.max(tweets_apple)
+    tweets_google_g = np.array(tweets_google) / np.max(tweets_google)
+    tweets_tesla_g = np.array(tweets_tesla) / np.max(tweets_tesla)
+    tweets_netflix_g = np.array(tweets_netflix) / np.max(tweets_netflix)
+
+
+    labels = []
+    for b, c, d, e, f, g in zip(tweets_facebook_g, tweets_amazon_g, tweets_apple_g,
+                                tweets_google_g, tweets_tesla_g, tweets_netflix_g):
+      labels.append(round(b,2))
+      labels.append(round(c,2))
+      labels.append(round(d,2))
+      labels.append(round(e,2))
+      labels.append(round(f,2))
+      labels.append(round(g,2))
+
+    a = np.arange(8)
+    w = 0.1
+    fig, ax = plt.subplots(figsize=(30, 7), edgecolor='k')
+    ax.set_xticklabels(days)
+    p1 = ax.bar(a+w, tweets_facebook_g, w, color='cornflowerblue')
+    p2 = ax.bar(a-w, tweets_amazon_g, w, color='peachpuff')
+    p3 = ax.bar(a+2*w, tweets_apple_g, w, color='lightpink')
+    p4 = ax.bar(a-2*w, tweets_google_g, w, color='lightyellow')
+    p5 = ax.bar(a+3*w, tweets_tesla_g, w, color='peachpuff')
+    p6 = ax.bar(a, tweets_netflix_g, w, color='lightcoral')
+    ax.set_xticks(a)
+    ax.set_title(title)
+    # Evaluation of the models
+    ax.legend((p1[0], p2[0], p3[0], p4[0], p5[0], p6[0]),
+              ('facebook', 'amazon', 'apple', 'google', 'tesla', 'netflix'))
+    plt.xlabel('Days')
+    plt.ylabel('Ratio number of tweets')
+    autolabel(ax, p1)
+    autolabel(ax, p2)
+    autolabel(ax, p3)
+    autolabel(ax, p4)
+    autolabel(ax, p5)
+    autolabel(ax, p6)
+    plt.show()
+
+facebook_count_days, amazon_count_days, apple_count_days, google_count_days,\
+tesla_count_days, netflix_count_days = list_tweets_per_day
+
+
+all_data_to_graph = []
+new_labels = cut_label_trends(facebook_count_days['date'])
+for a, b, c, d, e, f, g in zip(list(new_labels),
+                      list(facebook_count_days['count']),
+                      list(amazon_count_days['count']),
+                      list(apple_count_days['count']),
+                      list(google_count_days['count']),
+                      list(tesla_count_days['count']),
+                      list(netflix_count_days['count'])):
+    all_data_to_graph.append((a,b,c,d,e,f,g))
+print(all_data_to_graph)
+show_plots_of_compare(all_data_to_graph, 'Visual Compare between the days')
