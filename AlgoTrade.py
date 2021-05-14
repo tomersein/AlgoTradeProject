@@ -9,6 +9,8 @@ from nltk.stem import PorterStemmer
 from collections import Counter
 import matplotlib.pyplot as plt
 import numpy as np
+import operator
+import collections
 
 # define the variables of the program
 lemma = WordNetLemmatizer()
@@ -508,3 +510,84 @@ plt.ylabel("Ratio amount of searches")
 plt.legend(bbox_to_anchor=(0.9, 0.6))
 plt.show()
 
+# TRENDS OF TWEETS
+
+def prepare_dictionary(list_of_words):
+    """
+    gets a list of words and creates a set after normalizing the list
+    :param list_of_words: the list of words
+    :return: a set
+    """
+    stop_free = [i.strip() for i in list_of_words if i not in stop and i and i == i]
+    lower_case = [word.lower() for word in stop_free if word and word == word]
+    normalized = [lemma.lemmatize(word) for word in lower_case if word]
+    new_set = set(normalized)
+    return new_set
+
+dictionary_of_stocks = pd.read_csv("stock_market_dictionary.csv")
+set_negative = prepare_dictionary(list(dictionary_of_stocks['Negative']))
+set_positive = prepare_dictionary(list(dictionary_of_stocks['Positive']))
+set_uncertainty = prepare_dictionary(list(dictionary_of_stocks['Uncertainty']))
+
+
+def split_a_tweet(row):
+    """
+    splits a tweet in a df
+    :param row: the tweet
+    :return: list of tokens
+    """
+    return row.split()
+
+
+def count_trend(row):
+    """
+    count how many times a certain word from the stock market dictionary exists
+    :param row: the row of a df
+    :return: the most common behaviour
+    """
+    count_positive = 0
+    count_negative = 0
+    count_uncertainty = 0
+    if row:
+        if len(row) > 0:
+            for item in row:
+                if item in set_positive:
+                    count_positive += 1
+                elif item in set_negative:
+                    count_negative += 1
+                elif item in set_uncertainty:
+                    count_uncertainty += 1
+    if count_negative + count_negative + count_uncertainty == 0:
+        return "None"
+    stats = {"positive": count_positive, "negative": count_negative, "uncertainty": count_uncertainty}
+    result = max(stats.items(), key=operator.itemgetter(1))[0]
+    return result
+
+
+for df, name in zip(list_stocks, list_names_stocks):
+    df['tokens'] = df['tweet'].apply(split_a_tweet)
+    df['tokens'] = df['tokens'].apply(normalize_word)
+    df['trend'] = df['tokens'].apply(count_trend)
+    c = collections.Counter(list(df['trend']))
+    print(f"The distribution of trend of the stock if {name} is:")
+    print(c)
+    print()
+
+
+def filter_trends(list_stocks):
+    """
+    the function filter the tweets that doesn't have any trend
+    :param list_stocks: the list of df of stocks
+    :return: a list of filtered df
+    """
+    new_list_stocks = []
+    for df in list_stocks:
+        df = df[(df['trend'] != 'None')]
+        new_list_stocks.append(df)
+    return new_list_stocks
+
+'''
+list_filtered_stocks = filter_trends(list_stocks)
+for df, name in zip(list_filtered_stocks,list_names_stocks):
+    df.to_csv("filtered_stocks/"+name+".csv")
+'''
