@@ -190,6 +190,7 @@ def count_trend(row):
     result = max(stats.items(), key=operator.itemgetter(1))[0]
     return result
 
+
 netflix['tokens'] = netflix['tweet'].apply(split_a_tweet)
 netflix['tokens'] = netflix['tokens'].apply(normalize_word)
 netflix['trend'] = netflix['tokens'].apply(count_trend)
