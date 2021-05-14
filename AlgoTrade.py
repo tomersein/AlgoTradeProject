@@ -27,7 +27,7 @@ netflix = pd.read_csv("nflx.csv", lineterminator='\n')
 list_stocks = [facebook, amazon, apple, google, tesla, netflix]
 list_names_stocks = ["facebook", "amazon", "apple", "google", "tesla", "netflix"]
 
-
+'''
 def change_format_of_dates_line(row):
     """
     the function converts the format of the days of the dataframe
@@ -39,6 +39,7 @@ def change_format_of_dates_line(row):
         return temp
     except Exception:
         return "2021-01-01"
+'''
 
 
 def change_format_of_dates_slash(row):
@@ -118,12 +119,21 @@ emoticon_re = re.compile(r'^' + emoticons_str + '$', re.VERBOSE | re.IGNORECASE)
 
 
 def transform_tweets_to_tokens(tweets):
+    """
+    the function takes a full string of tweets and separtes it into tokens
+    :param tweets: a string of tweets
+    :return: tokens
+    """
     tweets_tokens = [preprocess(tweet, True, False) for tweet in tweets]
     return tweets_tokens
 
 
 def tokenize(s):
-    # return tokens_re.findall(s.encode('ascii','replace'))
+    """
+    the function takes a specific token and checks if it fits to a regex
+    :param s: a string
+    :return: a fixed version of the token (if it fits to an emoji regex for example)
+    """
     try:
         return tokens_re.findall(s)
     except Exception:
@@ -131,6 +141,12 @@ def tokenize(s):
 
 
 def normalize_word(text, removeSpecial=False):
+    """
+    the function takes a token and transform it to small letters and lemmatization
+    :param text: the string of the tweet
+    :param removeSpecial: tells the function not to clean special characters
+    :return: a normalized tokens
+    """
     exclude = set(string.punctuation)
     stop_free = []
     if removeSpecial:
@@ -141,7 +157,13 @@ def normalize_word(text, removeSpecial=False):
     normalized = [lemma.lemmatize(word) for word in stop_free]
     return normalized
 
+
 def CleanTweet(tweet):
+    """
+    the function cleans tokens from some characters or line up the format
+    :param tweet: the string of the tweet
+    :return: a clean and formatted token
+    """
     tweet = tweet.lower()
     tweet = re.sub(r'https?:\/\/.*[\r\n]*', '', tweet, flags=re.MULTILINE)
     tweet = re.sub(r'\.', ' . ', tweet)
@@ -161,6 +183,13 @@ def CleanTweet(tweet):
 
 
 def preprocess(s, lowercase=False, toStringList=False):
+    """
+    the function takes all of the tweets and preprocess them so we can do additional statistic
+    :param s: the string of the tweet
+    :param lowercase: boolean of lowercase conversation
+    :param toStringList: boolean if to convert it back to a string
+    :return: string or separated tokens
+    """
     tokens = tokenize(s)
     if not tokens:
         return ""
@@ -177,6 +206,11 @@ def preprocess(s, lowercase=False, toStringList=False):
 
 
 def find_all_hashtags(row):
+    """
+    the function all of the hashtags in a tweet
+    :param row: a single tweet
+    :return: list of hashtags
+    """
     try:
         hashtags = [i for i in row.split() if i.startswith("#")]
         return hashtags
@@ -185,6 +219,11 @@ def find_all_hashtags(row):
 
 
 def find_all_tags(row):
+    """
+    the function all of the tags in a tweet
+    :param row: a single tweet
+    :return: list of tags
+    """
     try:
         tags = [i for i in row.split() if i.startswith("@")]
         return tags
@@ -193,6 +232,11 @@ def find_all_tags(row):
 
 
 def create_df_from_list_tuple(list_tup):
+    """
+    converts a list of tuples into a df
+    :param list_tup: list of tuple (word, number)
+    :return: a df
+    """
     list1, list2 = zip(*list_tup)
     df = pd.DataFrame(list1, columns=['word'])
     df['frequency'] = list2
@@ -200,6 +244,11 @@ def create_df_from_list_tuple(list_tup):
 
 
 def create_df_from_list_tuple_two_words(list_tup):
+    """
+    converts a list of tuples into a df
+    :param list_tup: list of tuple (word,word,number)
+    :return: a df
+    """
     list1, list2 = zip(*list_tup)
     df = pd.DataFrame(list(list1), columns=['first word', 'second word'])
     df['frequency'] = list2
@@ -207,6 +256,11 @@ def create_df_from_list_tuple_two_words(list_tup):
 
 
 def validate_top_unigrams(l_unigrams):
+  """
+  the function validates the top 10 list of unigrams
+  :param l_unigrams: the list of unigrams
+  :return: the top 10 validated unigrams
+  """
   counter = 0
   verified_list = []
   for p in l_unigrams:
@@ -219,6 +273,11 @@ def validate_top_unigrams(l_unigrams):
 
 
 def validate_top_bigrams(l_bigrams):
+  """
+  the function validates the top 10 list of bigrams
+  :param l_bigrams: the list of bigrams
+  :return: the top 10 validated bigrams
+  """
   counter = 0
   verified_list = []
   for p in l_bigrams:
@@ -233,7 +292,11 @@ def validate_top_bigrams(l_bigrams):
 
 
 def show_most_common_terms(df):
-
+    """
+    the function shows the most common terms in each of the df
+    :param df: the df
+    :return: 2 df of common terms (prints it)
+    """
     # transform the strings to tokens
     tokens = transform_tweets_to_tokens(df['tweet'].values)
     flat_tokens = [item for sublist in tokens for item in sublist]
@@ -257,6 +320,11 @@ for df, name in zip(list_stocks, list_names_stocks):
 
 
 def show_most_popular_tags_hashtags(df):
+  """
+  the function print the most common hashtags and tags in a df
+  :param df: a df
+  :return: print the most common hashtags and tags
+  """
   all_tweets = df.loc[df['tweet'] != None]
   all_tweets['all_hashtags'] = all_tweets['tweet'].apply(find_all_hashtags)
   all_tweets['all_tags'] = all_tweets['tweet'].apply(find_all_tags)
@@ -299,6 +367,12 @@ for df, name in zip(list_stocks, list_names_stocks):
 
 
 def sum_tweets_per_day(list_stocks, list_names_stocks):
+    """
+    the function sums the number of tweets per day
+    :param list_stocks: the list of stocks we want to count
+    :param list_names_stocks: the names of the stocks
+    :return: a list of df
+    """
     list_amount_tweets = []
     for df, name in zip(list_stocks, list_names_stocks):
         print(f"Count per day in {name}:")
@@ -313,7 +387,12 @@ list_tweets_per_day = sum_tweets_per_day(list_stocks, list_names_stocks)
 
 
 def autolabel(ax, rects):
-    """Attach a text label above each bar in *rects*, displaying its height."""
+    """
+    Attach a text label above each bar in *rects*, displaying its height
+    :param ax: the plot object
+    :param rects: the labels
+    :return: formatted labels
+    """
     for rect in rects:
         height = round(rect.get_height(),2)
         ax.annotate('{}'.format(height),
@@ -324,16 +403,25 @@ def autolabel(ax, rects):
 
 
 def cut_label_trends(data):
+  """
+  the function takes the full date labels and converts the year into a short view
+  :param data: the label
+  :return: a new short label
+  """
   labels = []
   for i in data:
     temp = i.strftime('%Y-%m-%d')
-    # x = temp.split('-')
-    # new = str('21')+"-"+str(x[0])+"-"+str(x[1])
     labels.append(temp)
   return labels
 
 
 def show_plots_of_compare(results, title):
+    """
+    the function creates the plot
+    :param results: a list of tuple
+    :param title: the title of the plot
+    :return: the plot
+    """
     results = [[x[i] for x in results] for i in range(7)]
     # [facebook, amazon, apple, google, tesla, netflix]
     days, tweets_facebook, tweets_amazon, tweets_apple,\
@@ -397,3 +485,26 @@ for a, b, c, d, e, f, g in zip(list(new_labels),
     all_data_to_graph.append((a,b,c,d,e,f,g))
 print(all_data_to_graph)
 show_plots_of_compare(all_data_to_graph, 'Visual Compare between the days')
+
+# GOOGLE TRENDS
+
+def cut_label_google_trends(row):
+    """
+    converts the date from google trends csv to new format
+    :param row: the row in the df
+    :return: a new formatted date
+    """
+    values = row.split("/")
+    month = values[0]
+    day = values[1]
+    return str(day)+"-"+str(month)+"-21"
+
+google_trend = pd.read_csv("google_trends.csv")
+google_trend['date'] = google_trend['date'].apply(cut_label_google_trends)
+google_trend = google_trend.set_index(['date'])
+lines = google_trend.plot.line()
+plt.title("Google Trends per day")
+plt.ylabel("Ratio amount of searches")
+plt.legend(bbox_to_anchor=(0.9, 0.6))
+plt.show()
+
