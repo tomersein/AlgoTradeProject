@@ -59,6 +59,7 @@ def load_data(item):
         df = pd.read_csv(os.path.join('Stocks','hpq.us.txt'),delimiter=',',usecols=['Date','Open','High','Low','Close'])
         print('Loaded data from the Kaggle repository')
         return df
+
 def visualization_of_stock(df,name):
     df = df.sort_values('Date')
     # df = df.iloc[::-1]
@@ -69,8 +70,10 @@ def visualization_of_stock(df,name):
     plt.xlabel('Date', fontsize=18)
     plt.ylabel('Price', fontsize=18)
     plt.title(name)
-    # plt.show()
-    plt.savefig(name)
+    plt.show()
+    # plt.savefig(name)
+
+
 
 if __name__ == "__main__":
     tickers =['AMZN','AAPL','FB','GOOG','NFLX','TSLA']

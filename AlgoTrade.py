@@ -605,6 +605,7 @@ for item, name in zip(list_stocks_filtered, list_names_stocks):
     print(f"The trends df of {name}:")
     print(sum_tweets_per_day)
     print()
+    # sum_tweets_per_day.to_csv("summary_stocks_trends/trend_stock_"+name+".csv", index=False)
     list_sum_trends.append(sum_tweets_per_day)
 
 
@@ -618,9 +619,9 @@ def show_plots_of_compare_trends_stock(results, title):
     results = [[x[i] for x in results] for i in range(4)]
     # [facebook, amazon, apple, google, tesla, netflix]
     days, tweets_pos, tweets_neg, tweet_un = results
-    tweets_pos_g = np.array(tweets_pos) / np.max(tweets_pos)
-    tweets_neg_g = np.array(tweets_neg) / np.max(tweets_neg)
-    tweet_un_g = np.array(tweet_un) / np.max(tweet_un)
+    tweets_pos_g = np.array(tweets_pos)
+    tweets_neg_g = np.array(tweets_neg)
+    tweet_un_g = np.array(tweet_un)
 
 
     labels = []
