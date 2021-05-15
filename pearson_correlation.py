@@ -49,6 +49,7 @@ for item in list_stocks_trend:
     list_of_lists_uncertain.append(list_uncertainty)
 
 
+
 def calculate_pearson(data_1, data_2):
   """
   calculates the correlation using pearson formula
@@ -74,6 +75,7 @@ def draw_pearson (ColA, ColB, title, data_g, label_x):
   ax.set_title(title)
   ax.set_xlabel(label_x)
 
+'''
 # Positive Corr with stock value
 for trend, stock_value, name in zip(list_of_lists_positive, list_value_close, stocks_names_list):
     print(f"The Correlation between the positive tweets and the stock value of {name} is:")
@@ -96,13 +98,39 @@ for trend, stock_value, name in zip(list_of_lists_neg, list_value_close, stocks_
     plt.show()
     print()
 
-
 # Uncertainty Corr with stock value
 for trend, stock_value, name in zip(list_of_lists_uncertain, list_value_close, stocks_names_list):
     print(f"The Correlation between the Uncertainty tweets and the stock value of {name} is:")
     new_df = pd.DataFrame(trend, columns=['trend'])
     new_df['stock value'] = stock_value[0]
+    calculate_pearson(trend, stock_value[0])
     draw_pearson('trend', 'stock value', 'Correlation of '+name+' stock value and Uncertainty trend',
                  new_df, 'number of positive')
+    plt.show()
+    print()
+'''
+
+stocks_names_list = ["facebook", "amazon", "apple", "google", "tesla", "netflix"]
+
+google_trends_df = pd.read_csv("google_trends.csv")
+
+google_trend_facebook = list(google_trends_df['fb'])
+google_trend_amazon = list(google_trends_df['amzn'])
+google_trend_apple = list(google_trends_df['appl'])
+google_trend_google = list(google_trends_df['goog'])
+google_trend_tesla = list(google_trends_df['tsla'])
+google_trend_netflix = list(google_trends_df['nflx'])
+
+list_google_trends = [google_trend_facebook, google_trend_amazon, google_trend_apple,
+                      google_trend_google, google_trend_tesla, google_trend_netflix]
+
+for trend, stock_value, name in zip(list_google_trends, list_value_close, stocks_names_list):
+    print(f"The Correlation between the google trend search (Ratio) and the stock value of {name} is:")
+    del trend[4:6]
+    new_df = pd.DataFrame(trend, columns=['trend'])
+    new_df['stock value'] = stock_value[0]
     calculate_pearson(trend, stock_value[0])
+    draw_pearson('trend', 'stock value', 'Correlation of '+name+' stock value and google trend search',
+                 new_df, 'number of searches (Ratio)')
+    plt.show()
     print()
